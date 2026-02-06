@@ -37,14 +37,30 @@ devops-skills-collection/
 
 ## 🚀 快速开始
 
-### 安装所有推荐 skills
+### ⚠️ 安全提示
+
+本项目提供两种安装方式：
+
+1. **官方 Skills（推荐）** - 只安装官方和大厂的 skills，安全可靠
+2. **所有 Skills** - 包含个人开发者的 skills，需自行审查
+
+### 安装官方 Skills（推荐）
 
 ```bash
 # 克隆本仓库
 git clone https://github.com/NeuraPawLabs/devops-skills-collection.git
 cd devops-skills-collection
 
-# 一键安装所有推荐 skills
+# 一键安装官方 skills（Anthropic、HashiCorp、Redis、GitHub）
+./install-official.sh
+```
+
+查看官方 skills 清单：[OFFICIAL_SKILLS.md](OFFICIAL_SKILLS.md)
+
+### 安装所有 Skills（包含个人开发者）
+
+```bash
+# ⚠️ 警告：包含个人开发者的 skills，请先审查代码
 ./install-all.sh
 ```
 
