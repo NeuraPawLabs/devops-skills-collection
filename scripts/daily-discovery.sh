@@ -69,11 +69,11 @@ search_skills() {
     local keyword=$1
     echo "🔎 搜索关键词: $keyword" | tee -a "$LOG_FILE"
     
-    # 执行搜索
-    npx skills find "$keyword" > /tmp/skills-search-$keyword.txt 2>&1
+    # 执行搜索（< /dev/null 防止交互式挂起）
+    npx skills find "$keyword" < /dev/null > /tmp/skills-search-$keyword.txt 2>&1 || true
     
-    # 提取 skills（格式：owner/repo@skill）
-    grep -E "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+@" /tmp/skills-search-$keyword.txt | while read -r line; do
+    # 提取 skills（格式：owner/repo@skill）— 先去除 ANSI 颜色码
+    sed 's/\x1b\[[0-9;]*m//g' /tmp/skills-search-$keyword.txt | grep -oE "[a-zA-Z0-9_-]+/[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+" | while read -r line; do
         # 提取 owner
         owner=$(echo "$line" | cut -d'/' -f1)
         
