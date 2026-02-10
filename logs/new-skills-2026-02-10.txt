@@ -1,0 +1,5 @@
+github/awesome-copilot@azure-devops-cli
+hashicorp/agent-skills@terraform-stacks
+hashicorp/agent-skills@terraform-style-guide
+hashicorp/agent-skills@terraform-test
+redis/agent-skills@redis-development
