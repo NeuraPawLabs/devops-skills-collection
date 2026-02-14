@@ -1,0 +1,38 @@
+🔍 开始每日 Skills 发现 - 2026-02-14
+================================================
+
+📋 共 16 个关键词，最多 4 个并行
+
+🔎 搜索关键词: devops
+  ✅ 发现官方 skill: github/awesome-copilot@azure-devops-cli
+🔎 搜索关键词: linux
+🔎 搜索关键词: nginx
+🔎 搜索关键词: mysql
+🔎 搜索关键词: postgresql
+🔎 搜索关键词: redis
+  ✅ 发现官方 skill: redis/agent-skills@redis-development
+🔎 搜索关键词: mongodb
+🔎 搜索关键词: docker
+🔎 搜索关键词: kubernetes
+🔎 搜索关键词: ansible
+🔎 搜索关键词: terraform
+  ✅ 发现官方 skill: hashicorp/agent-skills@terraform-style-guide
+  ✅ 发现官方 skill: hashicorp/agent-skills@terraform-test
+  ✅ 发现官方 skill: hashicorp/agent-skills@terraform-stacks
+🔎 搜索关键词: prometheus
+🔎 搜索关键词: grafana
+🔎 搜索关键词: security
+🔎 搜索关键词: backup
+🔎 搜索关键词: troubleshooting
+
+✅ 搜索完成！
+📊 发现 5 个官方 skills
+
+新发现的 skills：
+github/awesome-copilot@azure-devops-cli
+hashicorp/agent-skills@terraform-stacks
+hashicorp/agent-skills@terraform-style-guide
+hashicorp/agent-skills@terraform-test
+redis/agent-skills@redis-development
+
+📝 日志保存在: /home/mm/devops-skills-collection/logs/discovery-2026-02-14.log
