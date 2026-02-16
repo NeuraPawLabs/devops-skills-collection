@@ -14,6 +14,8 @@ set -euo pipefail
 REPO_DIR="$HOME/devops-skills-collection"
 DATE=$(date +%Y-%m-%d)
 LOG_FILE="$REPO_DIR/logs/discovery-$DATE.log"
+KNOWN_SKILLS_FILE="$REPO_DIR/known-skills.txt"
+OFFICIAL_SKILLS_FILE="$HOME/knowledge/OFFICIAL_SKILLS.md"
 MAX_PARALLEL=4
 TMPDIR_SEARCH=$(mktemp -d "/tmp/skills-discovery-XXXXXX")
 
@@ -21,10 +23,28 @@ trap 'rm -rf "$TMPDIR_SEARCH"' EXIT
 
 mkdir -p "$REPO_DIR/logs"
 
+# ── 构建已知 skills 集合（用于去重）──────────────────────
+# 来源 1: OFFICIAL_SKILLS.md 中已收录的 skills（提取安装引用格式）
+if [ -f "$OFFICIAL_SKILLS_FILE" ]; then
+    grep -oE '[a-zA-Z0-9_-]+/[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+' "$OFFICIAL_SKILLS_FILE" \
+        >> "$TMPDIR_SEARCH/known-all.txt" 2>/dev/null || true
+fi
+
+# 来源 2: 累积的已知 skills 文件（包含历次发现但未收录的）
+if [ -f "$KNOWN_SKILLS_FILE" ]; then
+    cat "$KNOWN_SKILLS_FILE" >> "$TMPDIR_SEARCH/known-all.txt" 2>/dev/null || true
+fi
+
+# 去重排序
+sort -u "$TMPDIR_SEARCH/known-all.txt" -o "$TMPDIR_SEARCH/known-all.txt" 2>/dev/null || touch "$TMPDIR_SEARCH/known-all.txt"
+KNOWN_COUNT=$(wc -l < "$TMPDIR_SEARCH/known-all.txt")
+# ─────────────────────────────────────────────────────────
+
 log() { echo "$*" | tee -a "$LOG_FILE"; }
 
 log "🔍 开始每日 Skills 发现 - $DATE"
 log "================================================"
+log "📦 已知 skills: $KNOWN_COUNT 个（将跳过）"
 log ""
 
 # 官方组织白名单（用 | 分隔，供 grep -E 使用）
@@ -105,15 +125,33 @@ done
 log ""
 log "✅ 搜索完成！"
 
-# 汇总结果
+# 汇总结果（过滤已知 skills）
 if [ -f "$REPO_DIR/logs/new-skills-$DATE.txt" ]; then
-    # 去重
+    # 去重（当天内）
     sort -u "$REPO_DIR/logs/new-skills-$DATE.txt" -o "$REPO_DIR/logs/new-skills-$DATE.txt"
-    NEW_COUNT=$(wc -l < "$REPO_DIR/logs/new-skills-$DATE.txt")
-    log "📊 发现 $NEW_COUNT 个官方 skills"
-    log ""
-    log "新发现的 skills："
-    cat "$REPO_DIR/logs/new-skills-$DATE.txt" | tee -a "$LOG_FILE"
+    TOTAL_FOUND=$(wc -l < "$REPO_DIR/logs/new-skills-$DATE.txt")
+
+    # 过滤掉已知 skills → 只保留真正的新发现
+    comm -23 "$REPO_DIR/logs/new-skills-$DATE.txt" "$TMPDIR_SEARCH/known-all.txt" \
+        > "$REPO_DIR/logs/truly-new-skills-$DATE.txt" 2>/dev/null || true
+
+    # 把今天发现的所有 skills 追加到累积已知列表（下次不再报告）
+    cat "$REPO_DIR/logs/new-skills-$DATE.txt" >> "$KNOWN_SKILLS_FILE"
+    sort -u "$KNOWN_SKILLS_FILE" -o "$KNOWN_SKILLS_FILE"
+
+    if [ -s "$REPO_DIR/logs/truly-new-skills-$DATE.txt" ]; then
+        NEW_COUNT=$(wc -l < "$REPO_DIR/logs/truly-new-skills-$DATE.txt")
+        log "📊 搜索到 $TOTAL_FOUND 个官方 skills，其中 $NEW_COUNT 个是新发现"
+        log ""
+        log "新发现的 skills："
+        cat "$REPO_DIR/logs/truly-new-skills-$DATE.txt" | tee -a "$LOG_FILE"
+        # 用真正的新发现覆盖 new-skills 文件（供 daily-update.sh 使用）
+        cp "$REPO_DIR/logs/truly-new-skills-$DATE.txt" "$REPO_DIR/logs/new-skills-$DATE.txt"
+    else
+        log "📊 搜索到 $TOTAL_FOUND 个官方 skills，全部已知（无新发现）"
+        rm -f "$REPO_DIR/logs/new-skills-$DATE.txt"
+    fi
+    rm -f "$REPO_DIR/logs/truly-new-skills-$DATE.txt"
 else
     log "📊 未发现新的官方 skills"
 fi
